@@ -60,6 +60,13 @@ func resourceLocalFile() *schema.Resource {
 				Default:      "0777",
 				ValidateFunc: validateMode,
 			},
+			"preserve_on_destroy": {
+				Type:        schema.TypeBool,
+				Description: "If true, the file will be preserved on destroy.",
+				Optional:    true,
+				Default:     false,
+				ForceNew:    true,
+			},
 		},
 	}
 }
@@ -133,6 +140,8 @@ func resourceLocalFileCreate(d *schema.ResourceData, _ interface{}) error {
 }
 
 func resourceLocalFileDelete(d *schema.ResourceData, _ interface{}) error {
-	os.Remove(d.Get("filename").(string))
+	if !d.Get("preserve_on_destroy").(bool) {
+		os.Remove(d.Get("filename").(string))
+	}
 	return nil
 }
